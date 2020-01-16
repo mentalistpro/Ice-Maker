@@ -19,17 +19,17 @@ Assets =
     Asset("IMAGE", "minimap/icemaker.tex"),
 }
 
-------------------------------------------------------------------------------------------------------------------------
---Config
-
 AddMinimapAtlas("minimap/icemaker.xml")
+
+------------------------------------------------------------------------------------------------------------------------
+-- Config
 
 TUNING.ICEMAKER_FUEL_MAX = GetModConfigData("max_fuel")
 TUNING.ICEMAKER_SPAWN_TIME = GetModConfigData("spawn_rate")
 TUNING.ICEMAKER_MINIMAP = GetModConfigData("minimap_icon")
 
 ------------------------------------------------------------------------------------------------------------------------
---Recipe
+-- Recipes
 
 if IsDLCEnabled(3) then
 	icemaker = Recipe("icemaker",
@@ -47,10 +47,8 @@ elseif IsDLCEnabled(2) then
 	Ingredient("transistor", 2) 
 	}, 
 	RECIPETABS.SCIENCE, TECH.SCIENCE_TWO, "rog") 
-	-- This registers icemaker in ROG recipe.
-    -- Tt doesn't touch existing icemaker in SW recipe.
-	-- Players in RoG world / RoG world with SW compatibility will use 10 logs in this recipe.
-	-- Players in SW world will remain using 5 bamboos.
+	--The recipe above is registered as an RoG recipe, so players in RoG world or RoG world with SW enabled will be able to use this new recipe.
+	--It does not change the existing icemaker recipe for SW worlds.
 else
 	icemaker = Recipe("icemaker",
 	{ 

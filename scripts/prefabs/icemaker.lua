@@ -12,18 +12,23 @@ local prefabs =
 }
 
 local function spawnice(inst)
-	inst:RemoveEventCallback("animover", spawnice)	
+	inst:RemoveEventCallback("animover", spawnice)
+	
+	--Spawn ash in vanilla, spawn ice in DLCs
 	local ice = SpawnPrefab("ash")
-		if IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) then ice = SpawnPrefab("ice") end
+	if IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) then 
+		ice = SpawnPrefab("ice") 
+	end
     local pt = Vector3(inst.Transform:GetWorldPosition()) + Vector3(0,2,0)
     ice.Transform:SetPosition(pt:Get())
 	
-    local down = TheCamera:GetDownVec()
+	--Spit spawned product from the machine
+	local down = TheCamera:GetDownVec()
     local angle = math.atan2(down.z, down.x) + (math.random()*60)*DEGREES
     local sp = 3 + math.random()
     ice.Physics:SetVel(sp*math.cos(angle), math.random()*2+8, sp*math.sin(angle))
 	SpawnPrefab("collapse_small").Transform:SetPosition(inst.Transform:GetWorldPosition())
-    
+	
 	--Machine should only ever be on after spawning an ice
 	inst.components.fueled:StartConsuming()
 	inst.AnimState:PlayAnimation("idle_on", true)
@@ -216,6 +221,7 @@ local function fn(Sim)
 					inst.fueltask:Cancel()
 					inst.fueltask = nil
 				end
+				
 			elseif section > 0 then
 					inst.AnimState:PlayAnimation("turn_on")
 					inst.AnimState:PushAnimation("idle_on", true)
