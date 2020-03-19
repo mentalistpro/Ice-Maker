@@ -1,7 +1,7 @@
 name        = "Ice Maker 3000"
 description = "Converts Fuel into Ice!"
 author      = "mentalistpro"
-version     = "1.3.4"
+version     = "1.3.5"
 forumthread = ""
 api_version = 6
 
