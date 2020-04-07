@@ -242,7 +242,7 @@ local function fn(Sim)
     inst.entity:AddSoundEmitter()
     local minimap = inst.entity:AddMiniMapEntity()
     if TUNING.ICEMAKER_MINIMAP == 0 then
-        minimap:SetIcon( "icemachine.tex" )
+        minimap:SetIcon( "icemachine.png" )
     end
 
     MakeObstaclePhysics(inst, .4)
