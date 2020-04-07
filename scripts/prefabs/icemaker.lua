@@ -229,6 +229,10 @@ for y = 2, 0, -1 do
     end
 end
 
+local function onclose(inst)
+    AddFuel(inst)
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 local function fn(Sim)
@@ -261,6 +265,7 @@ local function fn(Sim)
     inst.components.container.widgetanimbuild = "ui_chest_3x3"
     inst.components.container.widgetpos = Vector3(0,200,0)
     inst.components.container.side_align_tip = 160
+    inst.components.container.onclosefn = onclose
 
     inst:AddComponent("fueled")
     inst.components.fueled.maxfuel = TUNING.ICEMAKER_FUEL_VOLUME
