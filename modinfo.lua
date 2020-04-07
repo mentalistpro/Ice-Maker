@@ -1,44 +1,58 @@
-name        = "Ice Maker 3000"
-description = "Converts Fuel into Ice!"
-author      = "mentalistpro"
-version     = "1.3.5"
-forumthread = ""
-api_version = 6
+name                        = "Ice Maker 3000"
+description                 = "Converts Fuel into Ice!"
+author                      = "mentalistpro"
+version                     = "1.4"
+forumthread                 = ""
+api_version                 = 6
 
 dont_starve_compatible      = true
 reign_of_giants_compatible  = true
 shipwrecked_compatible      = true
 hamlet_compatible           = true
 
-icon_atlas  = "modicon.xml"
-icon        = "modicon.tex"
+icon_atlas                  = "modicon.xml"
+icon                        = "modicon.tex"
 
 configuration_options =
 {
     {
     name = "spawn_rate",
-    label = "Spawn rate",
+    label = "Spawn in",
     options =   {
-                {description = "10", data = 10},
-                {description = "20", data = 20},
-                {description = "30", data = 30},
-                {description = "40", data = 40},
-                {description = "50", data = 50},
+                {description = "5s", data = 5},
+                {description = "10s", data = 10},
+                {description = "15s", data = 15},
+                {description = "20s", data = 20},
+                {description = "25s", data = 25},
+                {description = "30s", data = 30},
                 },
     default = 30,
     },
+
     {
-        name = "max_fuel",
-        label = "Maximum fuel",
+        name = "fuel_volume",
+        label = "Fuel storage",
         options =   {
-                    {description = "70", data = 70},
-                    {description = "80", data = 80},
-                    {description = "90", data = 90},
-                    {description = "100", data = 100},
-                    {description = "110", data = 110},
+                    {description = "90s", data = 90},
+                    {description = "110s", data = 110},
+                    {description = "130s", data = 130},
+                    {description = "150s", data = 150},
+                    {description = "170s", data = 170},
+                    {description = "190s", data = 190},
                     },
         default = 90,
     },
+
+    {
+    name = "automatic_refuel",
+    label = "Automatic refuel",
+    options =   {
+                {description = "ON", data = 0},
+                {description = "OFF", data = 1},
+                },
+    default = 0,
+    },
+
     {
         name = "minimap_icon",
         label = "Minimap Icon",

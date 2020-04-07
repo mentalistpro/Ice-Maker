@@ -3,6 +3,8 @@ require "prefabutil"
 local assets =
 {
     Asset("ANIM", "anim/icemachine.zip"),
+    Asset("ANIM", "anim/icemachine_rog.zip"),
+    Asset("ANIM", "anim/icemachine_ham.zip"),
 }
 
 local prefabs =
@@ -13,22 +15,22 @@ local prefabs =
 
 local function spawnice(inst)
     inst:RemoveEventCallback("animover", spawnice)
-    
+
     --Spawn ash in vanilla, spawn ice in DLCs
     local ice = SpawnPrefab("ash")
-    if IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) then 
-        ice = SpawnPrefab("ice") 
+    if IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) then
+        ice = SpawnPrefab("ice")
     end
     local pt = Vector3(inst.Transform:GetWorldPosition()) + Vector3(0,2,0)
     ice.Transform:SetPosition(pt:Get())
-    
+
     --Spit spawned product from the machine
     local down = TheCamera:GetDownVec()
     local angle = math.atan2(down.z, down.x) + (math.random()*60)*DEGREES
     local sp = 3 + math.random()
     ice.Physics:SetVel(sp*math.cos(angle), math.random()*2+8, sp*math.sin(angle))
     SpawnPrefab("collapse_small").Transform:SetPosition(inst.Transform:GetWorldPosition())
-    
+
     --Machine should only ever be on after spawning an ice
     inst.components.fueled:StartConsuming()
     inst.AnimState:PlayAnimation("idle_on", true)
@@ -47,9 +49,11 @@ local function onhammered(inst, worked)
     inst:Remove()
 end
 
+------------------------------------------------------------------------------------------------------------------------
+
 local function getstatus(inst)
     local sec = inst.components.fueled:GetCurrentSection()
-    
+
     if STRINGS.CHARACTERS.WALANI    == nil then STRINGS.CHARACTERS.WALANI   = { DESCRIBE = {},} end -- DLC002
     if STRINGS.CHARACTERS.WARBUCKS  == nil then STRINGS.CHARACTERS.WARBUCKS = { DESCRIBE = {},} end -- DLC003
     if STRINGS.CHARACTERS.WARLY     == nil then STRINGS.CHARACTERS.WARLY    = { DESCRIBE = {},} end -- DLC002
@@ -62,7 +66,7 @@ local function getstatus(inst)
     if STRINGS.CHARACTERS.WORMWOOD  == nil then STRINGS.CHARACTERS.WORMWOOD = { DESCRIBE = {},} end -- DLC003
     if STRINGS.CHARACTERS.WORTOX    == nil then STRINGS.CHARACTERS.WORTOX   = { DESCRIBE = {},} end -- DST
     if STRINGS.CHARACTERS.WURT      == nil then STRINGS.CHARACTERS.WURT     = { DESCRIBE = {},} end -- DST
-    
+
     if sec == 0 then
         STRINGS.CHARACTERS.GENERIC.DESCRIBE.ICEMAKER            = "It needs more fuel."
         STRINGS.CHARACTERS.WILLOW.DESCRIBE.ICEMAKER             = "It's out of fuel."
@@ -118,7 +122,7 @@ local function getstatus(inst)
         STRINGS.CHARACTERS.WALANI.DESCRIBE.ICEMAKER             = "Not so chillin'."
         STRINGS.CHARACTERS.WAGSTAFF.DESCRIBE.ICEMAKER           = "Theoretically, it will require more fuel soon."
         STRINGS.CHARACTERS.WEBBER.DESCRIBE.ICEMAKER             = "I think it needs our help."
-        STRINGS.CHARACTERS.WHEELER.DESCRIBE.ICEMAKER            = "Needs more fuel to make more frozen."    
+        STRINGS.CHARACTERS.WHEELER.DESCRIBE.ICEMAKER            = "Needs more fuel to make more frozen."
         STRINGS.CHARACTERS.WILBA.DESCRIBE.ICEMAKER              = "'TIS NAUGHT MUCH FUEL LEFT"
         STRINGS.CHARACTERS.WOODLEGS.DESCRIBE.ICEMAKER           = "'Tis sputterin'."
         STRINGS.CHARACTERS.WORMWOOD.DESCRIBE.ICEMAKER           = "Slow"
@@ -167,7 +171,6 @@ local function getstatus(inst)
 end
 
 ------------------------------------------------------------------------------------------------------------------------
---Fuel management
 
 local function fueltaskfn(inst)
     inst.AnimState:PlayAnimation("use")
@@ -186,7 +189,47 @@ local function fuelupdatefn(inst, dt)
 end
 
 ------------------------------------------------------------------------------------------------------------------------
---Icemaker
+--Credit to 霜月大笨蛋
+
+local function AddFuel(inst)
+    local container = inst.components.container
+    for i= 1,40 do
+        if inst.components.fueled:GetPercent() < 0.5 then
+            for i = 1, container:GetNumSlots() do
+                local item = container:GetItemInSlot(i)
+                local itemnew = container:GetItemInSlot(i)
+                if item and item.components.fuel then
+                    local fuelamt = item.components.fuel.fuelvalue
+                    inst.components.fueled:DoDelta(fuelamt)
+                    container:RemoveItemBySlot(i)
+
+                    if item and itemnew then
+                        local stacksize = 1
+                        if itemnew.components.stackable then
+                            stacksize = item.components.stackable:StackSize() - 1
+                            itemnew.components.stackable:SetStackSize(stacksize)
+                            container:GiveItem(itemnew, i)
+                            if stacksize == 0 then
+                                local itemnew = nil
+                                container:RemoveItemBySlot(i)
+                                item:Remove()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local slotpos = {}
+for y = 2, 0, -1 do
+    for x = 0, 2 do
+        table.insert(slotpos, Vector3(80*x-80*2+80, 80*y-80*2+80,0))
+    end
+end
+
+------------------------------------------------------------------------------------------------------------------------
 
 local function fn(Sim)
     local inst = CreateEntity()
@@ -200,13 +243,27 @@ local function fn(Sim)
 
     MakeObstaclePhysics(inst, .4)
 
-    inst.AnimState:SetBank("icemachine")
-    inst.AnimState:SetBuild("icemachine")
-
     inst:AddTag("structure")
 
+    inst.AnimState:SetBank("icemachine")
+    if SaveGameIndex and SaveGameIndex:IsModePorkland() then
+        inst.AnimState:SetBuild("icemachine_ham")
+    elseif SaveGameIndex and SaveGameIndex:IsModeShipwrecked() then
+        inst.AnimState:SetBuild("icemachine")
+    else
+        inst.AnimState:SetBuild("icemachine_rog")
+    end
+
+    inst:AddComponent("container")
+    inst.components.container:SetNumSlots(#slotpos)
+    inst.components.container.widgetslotpos = slotpos
+    inst.components.container.widgetanimbank = "ui_chest_3x3"
+    inst.components.container.widgetanimbuild = "ui_chest_3x3"
+    inst.components.container.widgetpos = Vector3(0,200,0)
+    inst.components.container.side_align_tip = 160
+
     inst:AddComponent("fueled")
-    inst.components.fueled.maxfuel = TUNING.ICEMAKER_FUEL_MAX
+    inst.components.fueled.maxfuel = TUNING.ICEMAKER_FUEL_VOLUME
     inst.components.fueled.accepting = true
     inst.components.fueled:SetSections(4)
     inst.components.fueled.ontakefuelfn = ontakefuelfn
@@ -221,7 +278,11 @@ local function fn(Sim)
                     inst.fueltask:Cancel()
                     inst.fueltask = nil
                 end
-                
+
+                if TUNING.ICEMAKER_AUTOMATIC_REFUEL == 0 then
+                    AddFuel(inst)
+                end
+
             elseif section > 0 then
                     inst.AnimState:PlayAnimation("turn_on")
                     inst.AnimState:PushAnimation("idle_on", true)
@@ -229,28 +290,28 @@ local function fn(Sim)
                     inst.SoundEmitter:PlaySound("dontstarve/common/researchmachine_lvl1_idle_LP", "loop")
                 end
                 if inst.fueltask == nil then
-                    inst.fueltask = inst:DoPeriodicTask(TUNING.ICEMAKER_SPAWN_TIME, fueltaskfn)
+                    inst.fueltask = inst:DoPeriodicTask(TUNING.ICEMAKER_SPAWN_RATE, fueltaskfn)
                 end
             end
         end
     )
-    inst.components.fueled:InitializeFuelLevel(TUNING.ICEMAKER_FUEL_MAX/2)
+    inst.components.fueled:InitializeFuelLevel(TUNING.ICEMAKER_FUEL_VOLUME/2)
     inst.components.fueled:StartConsuming()
 
     inst:AddComponent("inspectable")
     inst.components.inspectable.getstatus = getstatus
-    
+
     inst:AddComponent("lootdropper")
 
     inst:AddComponent("workable")
     inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
     inst.components.workable:SetWorkLeft(4)
     inst.components.workable:SetOnFinishCallback(onhammered)
-
     inst:ListenForEvent("onbuilt", onbuilt)
 
     return inst
 end
 
-return Prefab("common/objects/icemaker", fn, assets, prefabs),
-    MakePlacer("common/icemaker_placer", "icemachine", "icemachine", "idle_off")
+return  Prefab("common/objects/icemaker", fn, assets, prefabs),
+        MakePlacer("common/icemaker_placer", "icemachine", "icemachine", "idle_off")
+
