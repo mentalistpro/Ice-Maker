@@ -1,13 +1,13 @@
-PrefabFiles = 
+PrefabFiles =
 {
   "icemaker",
 }
 
-Assets = 
+Assets =
 {
-    Asset("ATLAS", "images/inventoryimages/icemaker.xml"),
-    Asset("ATLAS", "minimap/icemaker.xml"),
-    Asset("IMAGE", "minimap/icemaker.tex"),
+	Asset("ATLAS", "images/inventoryimages/icemaker.xml"),
+	Asset("ATLAS", "minimap/icemaker.xml"),
+	Asset("IMAGE", "minimap/icemaker.tex"),
 }
 
 AddMinimapAtlas("minimap/icemaker.xml")
@@ -22,8 +22,9 @@ AddMinimapAtlas("minimap/icemaker.xml")
 ------------------------------------------------------------------------------------------------------------------------
 --#1 Config
 
-TUNING.ICEMAKER_FUEL_MAX = GetModConfigData("max_fuel")
-TUNING.ICEMAKER_SPAWN_TIME = GetModConfigData("spawn_rate")
+TUNING.ICEMAKER_AUTOMATIC_REFUEL = GetModConfigData("automatic_refuel")
+TUNING.ICEMAKER_FUEL_VOLUME = GetModConfigData("fuel_volume")
+TUNING.ICEMAKER_SPAWN_RATE = GetModConfigData("spawn_rate")
 TUNING.ICEMAKER_MINIMAP = GetModConfigData("minimap_icon")
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -40,31 +41,31 @@ local TECH = _G.TECH
 --Icemaker
 
 local icemaker = Recipe("icemaker",
-    { 
-    Ingredient("heatrock", 1), 
-    Ingredient("log", 10), 
-    Ingredient("transistor", 2) 
-    }, 
-    RECIPETABS.SCIENCE, TECH.SCIENCE_TWO)
-    
-    --//Enable icemaker recipe in DLCs.
-    if IsDLCEnabled and ( IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) )then
-        icemaker.game_type = {"rog", "vanilla", "porkland"}
-    end
-    icemaker.placer = "icemaker_placer"
-    icemaker.atlas = "images/inventoryimages/icemaker.xml"  
+	{
+	Ingredient("heatrock", 1),
+	Ingredient("log", 10),
+	Ingredient("transistor", 2)
+	},
+	RECIPETABS.SCIENCE, TECH.SCIENCE_TWO)
+
+	--//Enable icemaker recipe in DLCs.
+	if IsDLCEnabled and ( IsDLCEnabled(1) or IsDLCEnabled(2) or IsDLCEnabled(3) )then
+		icemaker.game_type = {"rog", "vanilla", "porkland"}
+	end
+	icemaker.placer = "icemaker_placer"
+	icemaker.atlas = "images/inventoryimages/icemaker.xml"
 
 
 --Heatrock
 if IsDLCEnabled and IsDLCEnabled(3) then
-    --//Enable heatrock recipe in HAM world.
-    Recipe("heatrock", 
-        {
-        Ingredient("rocks", 10),
-        Ingredient("pickaxe", 1),
-        Ingredient("flint", 3)
-        },
-        RECIPETABS.SURVIVAL, TECH.SCIENCE_TWO, "porkland" )
+	--//Enable heatrock recipe in HAM world.
+	Recipe("heatrock",
+		{
+		Ingredient("rocks", 10),
+		Ingredient("pickaxe", 1),
+		Ingredient("flint", 3)
+		},
+		RECIPETABS.SURVIVAL, TECH.SCIENCE_TWO, "porkland" )
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -76,4 +77,3 @@ _S.NAMES.ICEMAKER = "Ice Maker 3000"
 _S.RECIPE_DESC.ICEMAKER = "Ice, ice, baby!"
 
 
-    
